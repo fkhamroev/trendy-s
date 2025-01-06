@@ -18,7 +18,7 @@ import FormProvider, { RHFTextField } from '../../components/hook-form';
 // ----------------------------------------------------------------------
 
 type FormValuesProps = {
-  email: string;
+  username: string;
   password: string;
   afterSubmit?: string;
 };
@@ -30,8 +30,8 @@ export default function AuthLoginForm() {
   const [showPassword, setShowPassword] = useState(false);
 
   const LoginSchema = Yup.object().shape({
-    email: Yup.string().required('Email is required').email('Email must be a valid email address'),
-    password: Yup.string().required('Password is required'),
+    username: Yup.string().required('Логин обязателен'),
+    password: Yup.string().required('Пароль обязателен'),
   });
 
   const methods = useForm<FormValuesProps>({
@@ -47,7 +47,7 @@ export default function AuthLoginForm() {
 
   const onSubmit = async (data: FormValuesProps) => {
     try {
-      await login(data.email, data.password);
+      await login(data.username, data.password);
       navigate(PATH_DASHBOARD.root, { 
         state: { openNav: true },
         replace: true 
@@ -59,7 +59,7 @@ export default function AuthLoginForm() {
 
       setError('afterSubmit', {
         ...error,
-        message: error.message,
+        message: error.message || 'Неверный логин или пароль',
       });
     }
   };
@@ -69,7 +69,7 @@ export default function AuthLoginForm() {
       <Stack spacing={3}>
         {!!errors.afterSubmit && <Alert severity="error">{errors.afterSubmit.message}</Alert>}
 
-        <RHFTextField name="email" label="Логин" />
+        <RHFTextField name="username" label="Логин" />
 
         <RHFTextField
           name="password"

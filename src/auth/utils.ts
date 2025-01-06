@@ -6,17 +6,35 @@ import axios from '../utils/axios';
 // ----------------------------------------------------------------------
 
 function jwtDecode(token: string) {
-  const base64Url = token.split('.')[1];
-  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-  const jsonPayload = decodeURIComponent(
-    window
-      .atob(base64)
-      .split('')
-      .map((c) => `%${`00${c.charCodeAt(0).toString(16)}`.slice(-2)}`)
-      .join('')
-  );
+  try {
+    if (!token || typeof token !== 'string') {
+      throw new Error('Invalid token provided');
+    }
 
-  return JSON.parse(jsonPayload);
+    const parts = token.split('.');
+    if (parts.length !== 3) {
+      throw new Error('Invalid JWT format');
+    }
+
+    const base64Url = parts[1];
+    if (!base64Url) {
+      throw new Error('Invalid JWT payload');
+    }
+
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      window
+        .atob(base64)
+        .split('')
+        .map((c) => `%${`00${c.charCodeAt(0).toString(16)}`.slice(-2)}`)
+        .join('')
+    );
+
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error('JWT decode error:', error);
+    throw new Error('Failed to decode JWT token');
+  }
 }
 
 // ----------------------------------------------------------------------
